@@ -12,6 +12,46 @@ import zipfile
 import json
 
 
+class SQuADDataPool(TextGenPool):
+    @classmethod
+    def normalize_text(cls, text, strip: bool):
+        text = text.lower()
+        if strip:
+            text = text.strip()
+        text.replace("'", '')
+        return text
+
+    @classmethod
+    def prepare(cls, split: str):
+        # Load SQuAD dataset
+        if split == "val":
+            split = "validation"
+        dataset = load_dataset("GEM/squad_v2", split=split)
+
+        samples = []
+        for ix, item in enumerate(dataset):
+            # print(ix)
+            # print(item)
+            # input()
+            context = item['context']
+            question = item['question']
+            answers = item['answers']['text']
+
+            # Combine context and question as prompt
+            prompt = f"Context: {context}\nQuestion: {question}"
+
+            # Use answers as references
+            references = [cls.normalize_text(answer, True) for answer in answers]
+
+            sample = Sample(id=f"{split}_{ix}",
+                            prompt_or_input_text=cls.normalize_text(prompt, False),
+                            references=references)
+            samples.append(sample)
+
+        dp_instance = cls(samples)
+        return dp_instance
+
+
 class ToTTo(TextGenPool):
     @classmethod
     def prepare(cls, split: str,

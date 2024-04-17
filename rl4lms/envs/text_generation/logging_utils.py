@@ -3,7 +3,7 @@ from typing import Dict, Any, List
 import os
 import json
 import jsonlines
-import wandb
+#import wandb
 import pandas as pd
 from transformers import AutoModel
 import logging
@@ -28,7 +28,7 @@ class Tracker:
         self._experiment_name = experiment_name
         self._project_name = project_name
         self._entity_name = entity_name
-        self._wandb_log = wandb_log
+        self._wandb_log = False
         self._init()
 
     def _init(self):

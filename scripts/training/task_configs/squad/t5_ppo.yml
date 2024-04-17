@@ -32,8 +32,9 @@ reward_fn:
   #   - id: meteor
   #   - id: bleu
 
+
 datapool:
-  id: narrative_qa
+  id: squad
 
 env:
   n_envs: 10
@@ -44,33 +45,32 @@ env:
     context_start_token: 0
     prompt_truncation_side: "right"
 
+
 alg:
-  id: nlpo
+  id: ppo
   args:
     n_steps: 256
-    batch_size: 64
+    batch_size: 32
     verbose: 1
     learning_rate: 0.000002
-    n_epochs: 5
+    n_epochs: 1
   kl_div:
     coeff: 0.001
     target_kl: 1.0
   policy:
-    id: maskable_seq2seq_lm_actor_critic_policy
+    id: seq2seq_lm_actor_critic_policy
     args:
       model_name: t5-base
       apply_model_parallel: True
-      mask_type: "learned_top_p"
-      top_mask: 0.9
-      target_update_iterations: 20
+      prompt_truncation_side: "right"
       generation_kwargs:
         do_sample: True
         top_k: 50
-
+    
 train_evaluation:
-  eval_batch_size: 50
-  n_iters: 100
-  eval_every: 10
+  eval_batch_size: 25
+  n_iters: 1
+  eval_every: 1
   save_every: 1
   metrics:
     - id: meteor
@@ -98,3 +98,4 @@ train_evaluation:
       args: {}
   generation_kwargs:
     num_beams: 4
+
